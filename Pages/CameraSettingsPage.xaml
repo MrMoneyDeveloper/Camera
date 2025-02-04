@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Camera.Pages.CameraSettingsPage"
+             Title="Camera Settings">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            <Label Text="Configure Cameras" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+            <!-- Camera 1 -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="8">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Camera 1" FontAttributes="Bold"/>
+                    <Frame Padding="10">
+                        <Entry Placeholder="IP Address" x:Name="Camera1IP" Keyboard="Url" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="RTSP Port" x:Name="Camera1Port" Keyboard="Numeric" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="Username" x:Name="Camera1Username" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="Password" x:Name="Camera1Password" IsPassword="True" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Camera 2 -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="8">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Camera 2" FontAttributes="Bold"/>
+                    <Frame Padding="10">
+                        <Entry Placeholder="IP Address" x:Name="Camera2IP" Keyboard="Url" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="RTSP Port" x:Name="Camera2Port" Keyboard="Numeric" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="Username" x:Name="Camera2Username" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="Password" x:Name="Camera2Password" IsPassword="True" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Camera 3 -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="8">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Camera 3" FontAttributes="Bold"/>
+                    <Frame Padding="10">
+                        <Entry Placeholder="IP Address" x:Name="Camera3IP" Keyboard="Url" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="RTSP Port" x:Name="Camera3Port" Keyboard="Numeric" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="Username" x:Name="Camera3Username" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="Password" x:Name="Camera3Password" IsPassword="True" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Camera 4 -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="8">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Camera 4" FontAttributes="Bold"/>
+                    <Frame Padding="10">
+                        <Entry Placeholder="IP Address" x:Name="Camera4IP" Keyboard="Url" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="RTSP Port" x:Name="Camera4Port" Keyboard="Numeric" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="Username" x:Name="Camera4Username" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                    <Frame Padding="10">
+                        <Entry Placeholder="Password" x:Name="Camera4Password" IsPassword="True" PlaceholderColor="Gray" Margin="5"/>
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Save Button -->
+            <Button Text="Save Settings" 
+                    Clicked="OnSaveClicked" 
+                    BackgroundColor="Green" 
+                    TextColor="White" 
+                    FontSize="18" 
+                    Margin="10"
+                    CornerRadius="10"
+                    HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

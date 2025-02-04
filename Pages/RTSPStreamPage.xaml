@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Camera.Pages.RTSPStreamPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="RTSP Camera Streams">
+
+    <Grid x:Name="StreamGrid"
+      BackgroundColor="LightGray"
+      HeightRequest="500"
+      WidthRequest="500"/>
+
+
+
+</ContentPage>

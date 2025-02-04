@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Camera.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:Camera.Pages"
+    Shell.FlyoutBehavior="Disabled"
+    Title="Camera">
+
+    <!-- Home Page -->
+    <ShellContent
+        Title="Home"
+        Route="MainPage"
+        ContentTemplate="{DataTemplate pages:MainPage}" />
+
+    <!-- Camera Settings Page -->
+    <ShellContent
+        Title="Camera Settings"
+        Route="CameraSettings"
+        ContentTemplate="{DataTemplate pages:CameraSettingsPage}" />
+
+    <!-- RTSP Stream Page -->
+    <ShellContent
+        Title="RTSP Stream"
+        Route="RTSPStreamPage"
+        ContentTemplate="{DataTemplate pages:RTSPStreamPage}" />
+
+</Shell>
