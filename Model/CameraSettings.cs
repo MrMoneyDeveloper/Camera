@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Maui.Storage;
 
 namespace Camera.Models
 {
     public class CameraSettings
     {
-        public int Id { get; set; }  // Unique ID to track each settings entry
+        public int Id { get; set; }
         public string Camera1_IP { get; set; } = "";
         public string Camera1_Port { get; set; } = "";
         public string Camera1_Username { get; set; } = "";
@@ -32,85 +33,80 @@ namespace Camera.Models
         public string Camera4_Password { get; set; } = "";
 
         private static readonly string FilePath = Path.Combine(FileSystem.AppDataDirectory, "camera_settings.json");
+        private static readonly string EncryptionKey = "YOUR_SECRET_KEY_32CHARS_LONG"; // CHANGE THIS TO A SECURE KEY!
 
         /// <summary>
-        /// Saves new camera settings while preserving previous ones.
+        /// Encrypts and saves camera settings, ensuring previous data is not lost.
         /// </summary>
         public void SaveToFile()
         {
             try
             {
-                // Ensure the directory exists before writing
-                string directory = Path.GetDirectoryName(FilePath);
-                if (!Directory.Exists(directory))
-                {
-                    Console.WriteLine($"📁 Creating Directory: {directory}");
-                    Directory.CreateDirectory(directory);
-                }
-
                 List<CameraSettings> settingsList = LoadAllSettings();
 
-                // Assign a new ID based on the highest existing ID
-                this.Id = settingsList.Any() ? settingsList.Max(s => s.Id) + 1 : 1;
+                // Find existing settings (if any)
+                var existingSettings = settingsList.FirstOrDefault(s => s.Id == this.Id);
 
-                // Remove previous settings for the same Camera1_IP to avoid duplicates
-                settingsList.RemoveAll(s => s.Camera1_IP == this.Camera1_IP);
-
-                // Add the new settings entry
-                settingsList.Add(this);
-
-                // Serialize the settings list to JSON
-                string json = JsonSerializer.Serialize(settingsList, new JsonSerializerOptions { WriteIndented = true });
-
-                Console.WriteLine($"📄 Writing to JSON File: {FilePath}");
-
-                File.WriteAllText(FilePath, json);
-
-                // Confirm file creation
-                if (File.Exists(FilePath))
+                if (existingSettings != null)
                 {
-                    Console.WriteLine($"✅ File Successfully Created: {FilePath}");
+                    // Update only the fields that have values
+                    existingSettings.Camera1_IP = !string.IsNullOrWhiteSpace(this.Camera1_IP) ? this.Camera1_IP : existingSettings.Camera1_IP;
+                    existingSettings.Camera1_Port = !string.IsNullOrWhiteSpace(this.Camera1_Port) ? this.Camera1_Port : existingSettings.Camera1_Port;
+                    existingSettings.Camera1_Username = !string.IsNullOrWhiteSpace(this.Camera1_Username) ? this.Camera1_Username : existingSettings.Camera1_Username;
+                    existingSettings.Camera1_Password = !string.IsNullOrWhiteSpace(this.Camera1_Password) ? this.Camera1_Password : existingSettings.Camera1_Password;
+
+                    existingSettings.Camera2_IP = !string.IsNullOrWhiteSpace(this.Camera2_IP) ? this.Camera2_IP : existingSettings.Camera2_IP;
+                    existingSettings.Camera2_Port = !string.IsNullOrWhiteSpace(this.Camera2_Port) ? this.Camera2_Port : existingSettings.Camera2_Port;
+                    existingSettings.Camera2_Username = !string.IsNullOrWhiteSpace(this.Camera2_Username) ? this.Camera2_Username : existingSettings.Camera2_Username;
+                    existingSettings.Camera2_Password = !string.IsNullOrWhiteSpace(this.Camera2_Password) ? this.Camera2_Password : existingSettings.Camera2_Password;
+
+                    existingSettings.Camera3_IP = !string.IsNullOrWhiteSpace(this.Camera3_IP) ? this.Camera3_IP : existingSettings.Camera3_IP;
+                    existingSettings.Camera3_Port = !string.IsNullOrWhiteSpace(this.Camera3_Port) ? this.Camera3_Port : existingSettings.Camera3_Port;
+                    existingSettings.Camera3_Username = !string.IsNullOrWhiteSpace(this.Camera3_Username) ? this.Camera3_Username : existingSettings.Camera3_Username;
+                    existingSettings.Camera3_Password = !string.IsNullOrWhiteSpace(this.Camera3_Password) ? this.Camera3_Password : existingSettings.Camera3_Password;
+
+                    existingSettings.Camera4_IP = !string.IsNullOrWhiteSpace(this.Camera4_IP) ? this.Camera4_IP : existingSettings.Camera4_IP;
+                    existingSettings.Camera4_Port = !string.IsNullOrWhiteSpace(this.Camera4_Port) ? this.Camera4_Port : existingSettings.Camera4_Port;
+                    existingSettings.Camera4_Username = !string.IsNullOrWhiteSpace(this.Camera4_Username) ? this.Camera4_Username : existingSettings.Camera4_Username;
+                    existingSettings.Camera4_Password = !string.IsNullOrWhiteSpace(this.Camera4_Password) ? this.Camera4_Password : existingSettings.Camera4_Password;
                 }
                 else
                 {
-                    Console.WriteLine($"❌ File was NOT created!");
+                    // Add new settings entry
+                    this.Id = settingsList.Any() ? settingsList.Max(s => s.Id) + 1 : 1;
+                    settingsList.Add(this);
                 }
-            }
-            catch (IOException ioEx)
-            {
-                Console.WriteLine($"🚨 File I/O Error: {ioEx.Message}");
-            }
-            catch (JsonException jsonEx)
-            {
-                Console.WriteLine($"🚨 JSON Serialization Error: {jsonEx.Message}");
+
+                // Encrypt and save
+                string json = JsonSerializer.Serialize(settingsList, new JsonSerializerOptions { WriteIndented = true });
+                string encryptedJson = Encrypt(json, EncryptionKey);
+                File.WriteAllText(FilePath, encryptedJson);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"🚨 Error saving camera settings: {ex.Message}");
+                Console.WriteLine($"🚨 Error saving encrypted camera settings: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Loads the most recent camera settings entry.
+        /// Loads the latest saved camera settings and decrypts them.
         /// </summary>
         public static CameraSettings LoadFromFile()
         {
             try
             {
                 List<CameraSettings> settingsList = LoadAllSettings();
-
-                // Return the most recent entry if available; otherwise, return default settings
                 return settingsList.OrderByDescending(s => s.Id).FirstOrDefault() ?? new CameraSettings();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"🚨 Error loading latest camera settings: {ex.Message}");
+                Console.WriteLine($"🚨 Error decrypting camera settings: {ex.Message}");
                 return new CameraSettings();
             }
         }
 
         /// <summary>
-        /// Loads all saved camera settings as a list.
+        /// Loads all saved camera settings and decrypts them.
         /// </summary>
         public static List<CameraSettings> LoadAllSettings()
         {
@@ -118,58 +114,68 @@ namespace Camera.Models
             {
                 if (File.Exists(FilePath))
                 {
-                    Console.WriteLine($"📂 Found JSON File: {FilePath}");
+                    string encryptedJson = File.ReadAllText(FilePath);
+                    string decryptedJson = Decrypt(encryptedJson, EncryptionKey);
 
-                    // Read the file safely
-                    string json = File.ReadAllText(FilePath);
-
-                    // Ensure the JSON isn't empty or just spaces
-                    if (!string.IsNullOrWhiteSpace(json))
-                    {
-                        try
-                        {
-                            // Validate JSON format before deserialization
-                            using (JsonDocument doc = JsonDocument.Parse(json))
-                            {
-                                return JsonSerializer.Deserialize<List<CameraSettings>>(json) ?? new List<CameraSettings>();
-                            }
-                        }
-                        catch (JsonException jsonEx)
-                        {
-                            Console.WriteLine($"🚨 JSON Format Error: {jsonEx.Message}");
-                            Console.WriteLine($"⚠️ Resetting corrupt JSON file...");
-
-                            // Delete corrupt file and return a fresh settings list
-                            File.Delete(FilePath);
-                            return new List<CameraSettings>();
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine($"⚠️ JSON File is Empty. Creating a new one...");
-                    }
+                    return JsonSerializer.Deserialize<List<CameraSettings>>(decryptedJson) ?? new List<CameraSettings>();
                 }
-                else
-                {
-                    Console.WriteLine($"❌ JSON File NOT Found! Creating a new one.");
-                }
-            }
-            catch (IOException ioEx)
-            {
-                Console.WriteLine($"🚨 File I/O Error: {ioEx.Message}");
-            }
-            catch (UnauthorizedAccessException uaEx)
-            {
-                Console.WriteLine($"🚨 Permission Error: {uaEx.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"🚨 Unexpected Error loading camera settings: {ex.Message}");
+                Console.WriteLine($"🚨 Error decrypting settings file: {ex.Message}");
             }
-
-            // If there's an issue, return a new empty list
             return new List<CameraSettings>();
         }
 
+        /// <summary>
+        /// Encrypts a string using AES-256.
+        /// </summary>
+        private static string Encrypt(string plainText, string key)
+        {
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.IV = new byte[16];
+
+                using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+                using (var ms = new MemoryStream())
+                {
+                    using (var cryptoStream = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                    using (var writer = new StreamWriter(cryptoStream))
+                    {
+                        writer.Write(plainText);
+                    }
+                    return Convert.ToBase64String(ms.ToArray());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Decrypts an AES-256 encrypted string.
+        /// </summary>
+        private static string Decrypt(string cipherText, string key)
+        {
+            try
+            {
+                using (Aes aes = Aes.Create())
+                {
+                    aes.Key = Encoding.UTF8.GetBytes(key);
+                    aes.IV = new byte[16];
+
+                    using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+                    using (var ms = new MemoryStream(Convert.FromBase64String(cipherText)))
+                    using (var cryptoStream = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                    using (var reader = new StreamReader(cryptoStream))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"🚨 Error decrypting data: {ex.Message}");
+                return "";
+            }
+        }
     }
 }

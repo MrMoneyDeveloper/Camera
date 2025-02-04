@@ -24,10 +24,9 @@ namespace Camera.Pages
         {
             allSettings = CameraSettings.LoadAllSettings();
 
-            // Ensure there is at least a default settings object
             var latestSettings = allSettings.OrderByDescending(s => s.Id).FirstOrDefault() ?? new CameraSettings();
 
-            // Populate UI fields safely (preventing null reference errors)
+            // Populate UI fields safely
             Camera1IP.Text = latestSettings.Camera1_IP ?? "";
             Camera1Port.Text = latestSettings.Camera1_Port ?? "";
             Camera1Username.Text = latestSettings.Camera1_Username ?? "";
@@ -50,22 +49,32 @@ namespace Camera.Pages
         }
 
         /// <summary>
-        /// Validates all camera fields before saving.
+        /// Validates only the filled camera fields before saving.
         /// </summary>
         private bool ValidateInputs()
         {
             bool isValid = true;
             List<string> errorMessages = new();
 
-            // Function to validate a single camera
+            // Function to validate a single camera, but only if it's filled
             void ValidateCamera(string ip, string port, string username, int cameraNumber)
             {
-                if (!IsValidIpOrUrl(ip)) errorMessages.Add($"Camera {cameraNumber}: Invalid IP Address.");
-                if (!IsValidPort(port)) errorMessages.Add($"Camera {cameraNumber}: Invalid RTSP Port.");
-                if (string.IsNullOrWhiteSpace(username)) errorMessages.Add($"Camera {cameraNumber}: Username is required.");
+                if (string.IsNullOrWhiteSpace(ip) && string.IsNullOrWhiteSpace(port) && string.IsNullOrWhiteSpace(username))
+                {
+                    return; // Ignore empty cameras
+                }
+
+                if (string.IsNullOrWhiteSpace(ip) || !IsValidIpOrUrl(ip))
+                    errorMessages.Add($"Camera {cameraNumber}: Invalid or missing IP Address.");
+
+                if (string.IsNullOrWhiteSpace(port) || !IsValidPort(port))
+                    errorMessages.Add($"Camera {cameraNumber}: Invalid or missing RTSP Port.");
+
+                if (string.IsNullOrWhiteSpace(username))
+                    errorMessages.Add($"Camera {cameraNumber}: Username is required.");
             }
 
-            // Validate each camera
+            // Validate only filled cameras
             ValidateCamera(Camera1IP.Text, Camera1Port.Text, Camera1Username.Text, 1);
             ValidateCamera(Camera2IP.Text, Camera2Port.Text, Camera2Username.Text, 2);
             ValidateCamera(Camera3IP.Text, Camera3Port.Text, Camera3Username.Text, 3);
@@ -87,7 +96,6 @@ namespace Camera.Pages
         {
             if (string.IsNullOrWhiteSpace(input)) return false;
 
-            // Regular expression for IP address or URL (better validation)
             string pattern = @"^(https?:\/\/)?((\d{1,3}\.){3}\d{1,3}|([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})$";
             return Regex.IsMatch(input, pattern);
         }
@@ -101,7 +109,7 @@ namespace Camera.Pages
         }
 
         /// <summary>
-        /// Saves camera settings after validating input.
+        /// Saves only the filled camera settings after validating them.
         /// </summary>
         private async void OnSaveClicked(object sender, EventArgs e)
         {
@@ -114,25 +122,25 @@ namespace Camera.Pages
                 CameraSettings newSettings = new CameraSettings
                 {
                     Id = nextId,
-                    Camera1_IP = Camera1IP.Text,
-                    Camera1_Port = Camera1Port.Text,
-                    Camera1_Username = Camera1Username.Text,
-                    Camera1_Password = Camera1Password.Text,
+                    Camera1_IP = string.IsNullOrWhiteSpace(Camera1IP.Text) ? null : Camera1IP.Text,
+                    Camera1_Port = string.IsNullOrWhiteSpace(Camera1Port.Text) ? null : Camera1Port.Text,
+                    Camera1_Username = string.IsNullOrWhiteSpace(Camera1Username.Text) ? null : Camera1Username.Text,
+                    Camera1_Password = string.IsNullOrWhiteSpace(Camera1Password.Text) ? null : Camera1Password.Text,
 
-                    Camera2_IP = Camera2IP.Text,
-                    Camera2_Port = Camera2Port.Text,
-                    Camera2_Username = Camera2Username.Text,
-                    Camera2_Password = Camera2Password.Text,
+                    Camera2_IP = string.IsNullOrWhiteSpace(Camera2IP.Text) ? null : Camera2IP.Text,
+                    Camera2_Port = string.IsNullOrWhiteSpace(Camera2Port.Text) ? null : Camera2Port.Text,
+                    Camera2_Username = string.IsNullOrWhiteSpace(Camera2Username.Text) ? null : Camera2Username.Text,
+                    Camera2_Password = string.IsNullOrWhiteSpace(Camera2Password.Text) ? null : Camera2Password.Text,
 
-                    Camera3_IP = Camera3IP.Text,
-                    Camera3_Port = Camera3Port.Text,
-                    Camera3_Username = Camera3Username.Text,
-                    Camera3_Password = Camera3Password.Text,
+                    Camera3_IP = string.IsNullOrWhiteSpace(Camera3IP.Text) ? null : Camera3IP.Text,
+                    Camera3_Port = string.IsNullOrWhiteSpace(Camera3Port.Text) ? null : Camera3Port.Text,
+                    Camera3_Username = string.IsNullOrWhiteSpace(Camera3Username.Text) ? null : Camera3Username.Text,
+                    Camera3_Password = string.IsNullOrWhiteSpace(Camera3Password.Text) ? null : Camera3Password.Text,
 
-                    Camera4_IP = Camera4IP.Text,
-                    Camera4_Port = Camera4Port.Text,
-                    Camera4_Username = Camera4Username.Text,
-                    Camera4_Password = Camera4Password.Text
+                    Camera4_IP = string.IsNullOrWhiteSpace(Camera4IP.Text) ? null : Camera4IP.Text,
+                    Camera4_Port = string.IsNullOrWhiteSpace(Camera4Port.Text) ? null : Camera4Port.Text,
+                    Camera4_Username = string.IsNullOrWhiteSpace(Camera4Username.Text) ? null : Camera4Username.Text,
+                    Camera4_Password = string.IsNullOrWhiteSpace(Camera4Password.Text) ? null : Camera4Password.Text
                 };
 
                 newSettings.SaveToFile();
